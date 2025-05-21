@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapa Leaflet con filtros combinados</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet desde CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      font-family: sans-serif;
+    }
+
+    .controls button {
+      display: block;
+      width: 150px;
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #2c7bb6;
+      color: white;
+    }
+
+    .controls button:hover {
+      background-color: #1d5e90;
+    }
+
+    .filtros-activos {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <div class="controls">
+    <button onclick="filtro('anio', 2022)">Año: 2022</button>
+    <button onclick="filtro('anio', 2023)">Año: 2023</button>
+    <button onclick="filtro('tipo', 'huelga')">Huelga</button>
+    <button onclick="filtro('tipo', 'protesta')">Protesta</button>
+    <div class="filtros-activos" id="filtros-activos">Mostrando todos los eventos</div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var map = L.map('map').setView([-34.9, -56.164], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      var filtros = {
+        anio: null,
+        tipo: null
+      };
+
+      var marcadores = [
+        {
+          marker: L.marker([-34.889, -56.166]).bindPopup(`<b>Palacio Legislativo (2022 - Huelga)</b>`),
+          anio: 2022,
+          tipo: 'huelga'
+        },
+        {
+          marker: L.marker([-34.871, -56.155]).bindPopup(`<b>Gran Parque Central (2023 - Protesta)</b>`),
+          anio: 2023,
+          tipo: 'protesta'
+        },
+        {
+          marker: L.marker([-34.8925, -56.1689]).bindPopup(`<b>Hospital de Clínicas (2022 - Protesta)</b>`),
+          anio: 2022,
+          tipo: 'protesta'
+        },
+        {
+          marker: L.marker([-34.8585, -56.2033]).bindPopup(`<b>Prado Chico (2023 - Huelga)</b>`),
+          anio: 2023,
+          tipo: 'huelga'
+        }
+      ];
+
+      function actualizarTextoFiltros() {
+        const div = document.getElementById("filtros-activos");
+        let texto = "";
+
+        if (filtros.anio) {
+          texto += `Año: ${filtros.anio}`;
+        }
+        if (filtros.tipo) {
+          texto += texto ? " | " : "";
+          texto += `Tipo: ${filtros.tipo.charAt(0).toUpperCase() + filtros.tipo.slice(1)}`;
+        }
+
+        div.textContent = texto || "Mostrando todos los eventos";
+      }
+
+      function actualizarMapa() {
+        map.eachLayer(function (layer) {
+          if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+          }
+        });
+
+        marcadores.forEach(function (obj) {
+          const coincideAnio = !filtros.anio || filtros.anio === obj.anio;
+          const coincideTipo = !filtros.tipo || filtros.tipo === obj.tipo;
+
+          if (coincideAnio && coincideTipo) {
+            obj.marker.addTo(map);
+          }
+        });
+
+        actualizarTextoFiltros();
+      }
+
+      window.filtro = function (campo, valor) {
+        filtros[campo] = filtros[campo] === valor ? null : valor;
+        actualizarMapa();
+      }
+
+      actualizarMapa(); // Mostrar todos al inicio
+    });
+  </script>
+</body>
+</html>
