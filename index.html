@@ -66,6 +66,7 @@
     <button onclick="filtro('tipo', 'huelga')">Huelga</button>
     <button onclick="filtro('tipo', 'protesta')">Protesta</button>
     <div class="filtros-activos" id="filtros-activos">Mostrando todos los eventos</div>
+    <div class="filtros-activos" id="contador-acciones">Total de eventos visibles: 0</div>
   </div>
 
   <script>
@@ -126,22 +127,32 @@
           }
         });
 
+        let contador = 0;
+
         marcadores.forEach(function (obj) {
           const coincideAnio = !filtros.anio || filtros.anio === obj.anio;
           const coincideTipo = !filtros.tipo || filtros.tipo === obj.tipo;
 
           if (coincideAnio && coincideTipo) {
             obj.marker.addTo(map);
+            contador++;
           }
         });
 
         actualizarTextoFiltros();
+        document.getElementById("contador-acciones").textContent = `Total de eventos visibles: ${contador}`;
       }
 
       window.filtro = function (campo, valor) {
         filtros[campo] = filtros[campo] === valor ? null : valor;
         actualizarMapa();
       }
+
+      actualizarMapa(); // Mostrar todos al inicio
+    });
+  </script>
+</body>
+</html>
 
       actualizarMapa(); // Mostrar todos al inicio
     });
