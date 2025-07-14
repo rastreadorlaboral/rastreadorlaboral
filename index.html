@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mapa Leaflet con filtros combinados</title>
+  <title>Mapa Leaflet con filtros y clústeres</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet desde CDN -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
   <style>
     html, body {
       height: 100%;
       margin: 0;
     }
-
     #map {
       height: 100%;
       width: 100%;
     }
-
     .controls {
       position: absolute;
       top: 20px;
@@ -31,7 +32,6 @@
       z-index: 1000;
       font-family: sans-serif;
     }
-
     .controls button {
       display: block;
       width: 150px;
@@ -44,11 +44,9 @@
       background-color: #2c7bb6;
       color: white;
     }
-
     .controls button:hover {
       background-color: #1d5e90;
     }
-
     .filtros-activos {
       margin-top: 10px;
       font-size: 14px;
@@ -57,14 +55,10 @@
   </style>
 </head>
 <body>
-
   <div id="map"></div>
-
   <div class="controls">
     <button onclick="filtro('anio', 2022)">Año: 2022</button>
     <button onclick="filtro('anio', 2023)">Año: 2023</button>
-    <button onclick="filtro('tipo', 'huelga')">Huelga</button>
-    <button onclick="filtro('tipo', 'protesta')">Protesta</button>
     <div class="filtros-activos" id="filtros-activos">Mostrando todos los eventos</div>
     <div class="filtros-activos" id="contador-acciones">Total de eventos visibles: 0</div>
   </div>
@@ -84,26 +78,105 @@
 
       var marcadores = [
         {
-          marker: L.marker([-34.889, -56.166]).bindPopup(`<b>Palacio Legislativo (2022 - Huelga)</b>`),
-          anio: 2022,
-          tipo: 'huelga'
+          marker: L.marker([-34.8215099540164, -56.24069913054993]).bindPopup(`
+            <b>ANCAP - La Tablada (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 2/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Estatal<br>
+            <b>Localidad:</b> Montevideo<br>
+            <b>Empleados:</b> 42 empleados<br>
+            <b>División:</b> C (industrias manufactureras)<br>
+            <b>Días de paro:</b> 1 día<br>
+            <b>Jornadas perdidas:</b> 16.8 jornadas<br>
+            <b>Causa del paro:</b> otros<br>
+          `),
+          anio: 2023
         },
         {
-          marker: L.marker([-34.871, -56.155]).bindPopup(`<b>Gran Parque Central (2023 - Protesta)</b>`),
-          anio: 2023,
-          tipo: 'protesta'
+          marker: L.marker([-34.8780184356268, -56.054854988841306]).bindPopup(`
+            <b>Pedidos Ya (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 2/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Privado<br>
+            <b>Localidad:</b> Montevideo e Interior<br>
+            <b>Empleados:</b> 1236 empleados<br>
+            <b>División:</b> <br>
+            <b>Días de paro:</b> 2 días<br>
+            <b>Jornadas perdidas:</b> 642.72 jornadas<br>
+            <b>Causa del paro:</b> reivindicaciones salariales<br>
+          `),
+          anio: 2023
         },
         {
-          marker: L.marker([-34.8925, -56.1689]).bindPopup(`<b>Hospital de Clínicas (2022 - Protesta)</b>`),
-          anio: 2022,
-          tipo: 'protesta'
+          marker: L.marker([-34.90189921533271, -56.192610591401014]).bindPopup(`
+            <b>ANCAP (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 4/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Estatal<br>
+            <b>Localidad:</b> Montevideo e Interior<br>
+            <b>Empleados:</b> 20 empleados<br>
+            <b>División:</b> C (industrias manufactureras)<br>
+            <b>Días de paro:</b> 1 día<br>
+            <b>Jornadas perdidas:</b> 20 jornadas<br>
+            <b>Causa del paro:</b> otros<br>
+          `),
+          anio: 2023
         },
-        {
-          marker: L.marker([-34.8585, -56.2033]).bindPopup(`<b>Prado Chico (2023 - Huelga)</b>`),
-          anio: 2023,
-          tipo: 'huelga'
+	{
+          marker: L.marker([-34.88115977831734, -56.14823447909405]).bindPopup(`
+            <b>CASMU (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 4/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Privado<br>
+            <b>Localidad:</b> Montevideo e Interior<br>
+            <b>Empleados:</b> 3700 empleados<br>
+            <b>División:</b> Q (servicios sociales y relacionados con la Salud humana)<br>
+            <b>Días de paro:</b> 1 día<br>
+            <b>Jornadas perdidas:</b> 2590 jornadas<br>
+            <b>Causa del paro:</b> empleo<br>
+          `),
+          anio: 2023
+        },
+	{
+          marker: L.marker([-34.74192279599419, -55.98647082988483]).bindPopup(`
+            <b>Logística TATA (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 24/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Privado<br>
+            <b>Localidad:</b> Interior<br>
+            <b>Empleados:</b> 350 empleados<br>
+            <b>División:</b> G (comercio al por mayor y al por menor; reparación de los vehículos de motor y de las motocicletas)<br>
+            <b>Días de paro:</b> 1 día<br>
+            <b>Jornadas perdidas:</b> 52.5 jornadas<br>
+            <b>Causa del paro:</b> reconocimiento sindical<br>
+          `),
+          anio: 2023
+        },
+	{
+          marker: L.marker([-34.88115977831734, -56.14823447909405]).bindPopup(`
+            <b>CASMU (2023 - Paro)</b><br>
+            <hr>
+            <b>Fecha:</b> 31/1/2023<br>
+            <b>Tipo:</b> Paro<br>
+            <b>Condición:</b> Privado<br>
+            <b>Localidad:</b> Montevideo e Interior<br>
+            <b>Empleados:</b> 3700 empleados<br>
+            <b>División:</b> Q (servicios sociales y relacionados con la Salud humana)<br>
+            <b>Días de paro:</b> 1 día<br>
+            <b>Jornadas perdidas:</b> 2590 jornadas<br>
+            <b>Causa del paro:</b> empleo<br>
+          `),
+          anio: 2023
         }
       ];
+
+// PASO 1: Crear un grupo de clústeres
+      var clusterGroup = L.markerClusterGroup();
 
       function actualizarTextoFiltros() {
         const div = document.getElementById("filtros-activos");
@@ -121,23 +194,22 @@
       }
 
       function actualizarMapa() {
-        map.eachLayer(function (layer) {
-          if (layer instanceof L.Marker) {
-            map.removeLayer(layer);
-          }
-        });
-
+        // En lugar de limpiar el mapa, limpiamos el grupo de clústeres
+        clusterGroup.clearLayers();
+        
         let contador = 0;
-
         marcadores.forEach(function (obj) {
           const coincideAnio = !filtros.anio || filtros.anio === obj.anio;
           const coincideTipo = !filtros.tipo || filtros.tipo === obj.tipo;
-
           if (coincideAnio && coincideTipo) {
-            obj.marker.addTo(map);
+            // PASO 2: Añadir el marcador al grupo, no al mapa
+            clusterGroup.addLayer(obj.marker);
             contador++;
           }
         });
+        
+        // PASO 3: Añadir el grupo completo al mapa
+        map.addLayer(clusterGroup);
 
         actualizarTextoFiltros();
         document.getElementById("contador-acciones").textContent = `Total de eventos visibles: ${contador}`;
@@ -147,12 +219,6 @@
         filtros[campo] = filtros[campo] === valor ? null : valor;
         actualizarMapa();
       }
-
-      actualizarMapa(); // Mostrar todos al inicio
-    });
-  </script>
-</body>
-</html>
 
       actualizarMapa(); // Mostrar todos al inicio
     });
